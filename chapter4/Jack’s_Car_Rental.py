@@ -181,7 +181,8 @@ if __name__ == "__main__":
 		for state in states:
 			action_seq = []
 			for a in actions:
-				if (a > 0 and a < state[0]) or (a < 0 and abs(a) <= state[1]):
+				# here is where the former problem lies: a >= 0
+				if (a >= 0 and a <= state[0]) or (a < 0 and abs(a) <= state[1]):
 					action_seq.append(expect_return(state,a,value))
 				else:
 					action_seq.append(-float('inf'))
@@ -199,23 +200,4 @@ if __name__ == "__main__":
 
 
 	print "optimal value function:",value
-	print "optimal policy:",policy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			
+	print "optimal policy:",policy			
