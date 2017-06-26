@@ -90,8 +90,8 @@ def episode_generator():
 	start_state = (start_pos[0],start_pos[1],start_velocity[0],start_velocity[1])	
 	c_state = start_state
 	
-	episodes = []
-	episodes.append(start_state)
+	episode = []
+	episode.append(start_state)
 	
 	while end_pos not in finish_line:
 		action_list = actions
@@ -114,17 +114,35 @@ def episode_generator():
 			c_state = x_state
 			c_reward = -1
 		
-		episodes.append(c_action)
-		episodes,append(c_state)
-		episodes.append(reward)
+		episode.append(c_action)
+		episode.append(reward)
+		episode.append(c_state)
 
-	return episodes
+	return episode
+# p --> pos of reward in pair ; n --> episode length
+def calReturnOfOnePair(p,n,episode):
+	r = 0
+	r = r + episode[p]
+	
+	for i in range(p,n):
+		if i + 3 < n:
+			i = i + 3
+			r += episode[i]
+		else:
+			break		
+		
+	return r
 
 def cal_Q(episode):
-	
-	if not len(episode):
+
+	e_length = len(episode)
+	if not e_length:
 		print ("episode is empty!")
 	else:
-		for  			
-
+		for i in range(e_length):
+			sa_pair = (episode[i],episode[i+1])
+			if sa_pair not in Returns:
+				Returns[sa_pair].append(calReturnOfOnePair(i+2,e_length,episode)) 
+				i = i + 3				
+			
 
