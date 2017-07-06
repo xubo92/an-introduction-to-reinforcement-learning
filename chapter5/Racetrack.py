@@ -64,7 +64,7 @@ race_map = np.array([
 '''
 
 
-start_line = [(9,5),(9,4),(9,3),(9,6),(9,7)]
+start_line = [(12,5),(12,4),(12,3),(12,2)]
 finish_line = [(5,16),(6,16),(7,16)]
 
 start_velocity = (0,0)
@@ -142,8 +142,10 @@ def episode_generator():
 	
 	episode = []
 	episode.append(c_state)
+	
 	#print("start_state:",c_state)
-	while end_pos not in finish_line:
+	n = 0
+	while end_pos not in finish_line and n <= 200:
 		
 		action_list = actions
 		action_prob = [item[2] for item in policies[c_state]]
@@ -160,15 +162,18 @@ def episode_generator():
 		
 		
 		# if the car crash to wall, send it back at random start pos
-		if x_state[0] < 0 or x_state[0] > 9 or x_state[1] < 0 or x_state[1] > 19: 
+		if x_state[0] < 0 or x_state[0] > 13 or x_state[1] < 0 or x_state[1] > 19 or race_map[x_state[0],x_state[1]]==0: 
 			#print "stucking..."
 			#print "stuck action:",c_action
 			#print "stuck state:",x_state	
-			continue
-		elif race_map[x_state[0],x_state[1]] == 0:
 			tmp_pos = start_line[random.randint(0,len(start_line)-1)]
 			c_state = (tmp_pos[0],tmp_pos[1],0,0)
 			c_reward = -5
+			continue
+		#elif race_map[x_state[0],x_state[1]] == 0:
+			#tmp_pos = start_line[random.randint(0,len(start_line)-1)]
+			#c_state = (tmp_pos[0],tmp_pos[1],0,0)
+			#c_reward = -5
 		else:
 			c_state = x_state
 			c_reward = -1
@@ -180,9 +185,10 @@ def episode_generator():
 		#print("action:",c_action)
 		#print("next_state:",c_state)
 		end_pos = (c_state[0],c_state[1])
-		
+		n+= 1
 	print("episode generated!")
 	return episode
+
 # p --> pos of reward in pair ; n --> episode length
 def calReturnOfOnePair(p,n,episode):
 	r = 0
@@ -254,47 +260,63 @@ class agent:
 			return False
 
 
-ep = episode_generator()
 
 
-	
+#ep = episode_generator()
+#print ep
 fig = plt.figure()
 ax = fig.add_subplot(111,autoscale_on=False,xlim=(0,race_map.shape[1]-1),ylim=(0,race_map.shape[0]-1))
 ax.grid()
 im = ax.imshow(np.flipud(race_map),origin='upper', interpolation='none')
-#plt.show(im)
-	
+
+anno_text = "Episode:%d,Timestep:%d,X_velocity:%d,Y_velocity:%d"
+annotation = ax.annotate(anno_text %(0,0,0,0),xy=(5,11),bbox=
+dict(boxstyle="round4,pad=0.3", fc="white", ec="b", lw=2))	
+#annotation.set_animated(True)
+
+#plt.show()
+
 
 def param_update():
-	for th in range(0,len(ep),3):
-		yield(ep[th][0],ep[th][1])
-
+	for eth,ep in enumerate(ep_list):
+		for sth in range(0,len(ep),3):
+			yield(ep[sth][0],ep[sth][1],sth,eth,ep[sth][2],ep[sth][3])
+			#print ep[th]
 		
-		
-def frame_update(pos):
-	x,y = pos
-	race_map[x,y] = 4
-	return im
-	
-		
-anim = animation.FuncAnimation(fig, frame_update, frames=param_update(), blit=False,save_count=0)
-
-	
+def frame_update(step_info):
+	x,y,sth,eth,x_v,y_v = step_info
+	race_map_copy = np.copy(race_map)
+	race_map_copy[x,y] = 4
+	im.set_array(np.flipud(race_map_copy))
+	annotation.set_text(anno_text % (eth,sth,x_v,y_v))
+	return im,annotation
 
 
+monte_carlo_num = 10
+ep_list = []
+for i in range(monte_carlo_num):
+	ep = episode_generator()
+	cal_Q(ep)
+	update_policy(ep)
+	ep_list.append(ep)
+
 	
+anim = animation.FuncAnimation(fig, frame_update, frames=param_update, blit=False,save_count=9000)
+
+plt.show()
+
 '''
-	monte_carlo_num = 100
-	for i in range(monte_carlo_num):
-		print("processing %d episode" %i)
-		ep = episode_generator()
-		cal_Q(ep)
-		update_policy(ep)
+monte_carlo_num = 100
+for i in range(monte_carlo_num):
+	print("processing %d episode" %i)
+	ep = episode_generator()
+	cal_Q(ep)
+	update_policy(ep)
 	
-	ag1 = agent(policies)
-	stop_flag = ag1.stop()
-	while not stop_flag:
-		ag1.forward()
-	print ag1.traces
-	# print policies'''
-
+ag1 = agent(policies)
+stop_flag = ag1.stop()
+while not stop_flag:
+	ag1.forward()
+print ag1.traces
+#print policies
+'''
