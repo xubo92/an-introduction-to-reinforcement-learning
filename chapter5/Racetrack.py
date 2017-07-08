@@ -109,7 +109,7 @@ for i,j,m,k in states:
 
 
 
-epsilon = 0.05
+epsilon = 0.005
 
 def random_pick(some_list, probabilities):  
       x = random.uniform(0, 1)  
@@ -123,19 +123,29 @@ def random_pick(some_list, probabilities):
 #prob = [0.6,0.4]
 #print random_pick(some_list,prob)
 
-'''
-def find_nearest_pos(pos):
-	pos_x = pos[0]
-	pos_y = pos[1]
-	
-	for i in range(race_map.shape[1]):
-		for j in range(i+1):
-			if race_map[i,j]
-'''
+def pass_finishLine(pre_pos,lat_pos):
+	finishLine_lx = finish_line[0][0]
+	finishLine_hx = finish_line[-1][0]
+	finishLine_y  = finish_line[0][1]
+
+	if pre_pos[1] < finishLine_y and lat_pos[1] >= finishLine_y and (pre_pos[0] + lat_pos[0])/2 \
+		<= finishLine_hx and (pre_pos[0] + lat_pos[0])/2 >= finishLine_lx:
+		return True
+	else:
+		return False
+		
+def avg_return_per_episode(ep):
+	ep_length = len(ep)
+	ep_return = 0.0
+	for i in range(2,ep_length,3):
+		ep_return += ep[i]
+	return ep_return*1.0 / ep_length		
+
 def episode_generator():
 	
 	start_pos = start_line[random.randint(0,len(start_line)-1)]
 	end_pos = start_pos
+	last_pos = start_pos
 	
 	start_state = (start_pos[0],start_pos[1],start_velocity[0],start_velocity[1])	
 	c_state = start_state
@@ -145,8 +155,11 @@ def episode_generator():
 	
 	#print("start_state:",c_state)
 	n = 0
-	while end_pos not in finish_line and n <= 200:
+	
+	while not pass_finishLine(last_pos,end_pos) and n < 200:
 		
+		last_pos = end_pos
+
 		action_list = actions
 		action_prob = [item[2] for item in policies[c_state]]
 			
@@ -169,11 +182,6 @@ def episode_generator():
 			tmp_pos = start_line[random.randint(0,len(start_line)-1)]
 			c_state = (tmp_pos[0],tmp_pos[1],0,0)
 			c_reward = -5
-			continue
-		#elif race_map[x_state[0],x_state[1]] == 0:
-			#tmp_pos = start_line[random.randint(0,len(start_line)-1)]
-			#c_state = (tmp_pos[0],tmp_pos[1],0,0)
-			#c_reward = -5
 		else:
 			c_state = x_state
 			c_reward = -1
@@ -181,11 +189,12 @@ def episode_generator():
 		episode.append(c_action)
 		episode.append(c_reward)
 		episode.append(c_state)
-
+		n += 1
 		#print("action:",c_action)
 		#print("next_state:",c_state)
 		end_pos = (c_state[0],c_state[1])
-		n+= 1
+		print("end position:",end_pos)		
+	
 	print("episode generated!")
 	return episode
 
@@ -194,7 +203,7 @@ def calReturnOfOnePair(p,n,episode):
 	r = 0
 	r = r + episode[p]
 	
-	for i in range(p,n,3):
+	for i in range(p+3,n,3):
 		#print episode[i]
 		r += episode[i]	
 		
@@ -233,7 +242,6 @@ def update_policy(episode):
 					a[2] = 1 - epsilon + epsilon / len(policies[s])
 				else:
 					a[2] = epsilon / len(policies[s])
-		i = i + 3
 	print("update done!")
 		
 
@@ -261,9 +269,7 @@ class agent:
 
 
 
-
-#ep = episode_generator()
-#print ep
+'''
 fig = plt.figure()
 ax = fig.add_subplot(111,autoscale_on=False,xlim=(0,race_map.shape[1]-1),ylim=(0,race_map.shape[0]-1))
 ax.grid()
@@ -275,12 +281,12 @@ dict(boxstyle="round4,pad=0.3", fc="white", ec="b", lw=2))
 #annotation.set_animated(True)
 
 #plt.show()
-
+'''
 
 def param_update():
 	for eth,ep in enumerate(ep_list):
 		for sth in range(0,len(ep),3):
-			yield(ep[sth][0],ep[sth][1],sth,eth,ep[sth][2],ep[sth][3])
+			yield(ep[sth][0],ep[sth][1],sth/3,eth,ep[sth][2],ep[sth][3])
 			#print ep[th]
 		
 def frame_update(step_info):
@@ -292,21 +298,38 @@ def frame_update(step_info):
 	return im,annotation
 
 
-monte_carlo_num = 10
+monte_carlo_num = 100
 ep_list = []
+avg_ep_return_list = []
+f = open("tmp_data.txt",'w')
 for i in range(monte_carlo_num):
 	ep = episode_generator()
+	print("episode length:%d" %(len(ep)/3))
+	print("processing %d episode:" %i)
 	cal_Q(ep)
+	
 	update_policy(ep)
 	ep_list.append(ep)
+	arpe = avg_return_per_episode(ep)
+	avg_ep_return_list.append(arpe)
+	f.write(('episode%d'%i) + 'return:' + str(arpe))
+	f.write('\n')
+f.close()
+
+plt.title("assessment of racetrack problem")
+plt.xlabel("episode index")
+plt.ylabel("episode average return")
+plt.plot(range(0,100),avg_ep_return_list,'r',label='avg return with on-policy')
+plt.grid()
 
 	
-anim = animation.FuncAnimation(fig, frame_update, frames=param_update, blit=False,save_count=9000)
+#anim = animation.FuncAnimation(fig, frame_update, frames=param_update, blit=False,save_count=9000)
 
 plt.show()
 
+
+
 '''
-monte_carlo_num = 100
 for i in range(monte_carlo_num):
 	print("processing %d episode" %i)
 	ep = episode_generator()
