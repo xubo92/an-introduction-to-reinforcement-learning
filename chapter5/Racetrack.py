@@ -92,11 +92,10 @@ for i in range(-1,2):
 	
 policies = dict()
 for i,j,m,k in states:
-	tmp = []
-	for ax,ay in actions:
-		tmp.append([ax,ay,1.0/actions_num])
-	policies[(i,j,m,k)] = tmp
-
+	policies[(i,j,m,k)] = np.random.random(len(actions))
+	policies[(i,j,m,k)] = policies[(i,j,m,k)] / np.sum(policies[(i,j,m,k)])
+print polices
+	
 Q = dict()
 for i,j,m,k in states:
 	for ax,ay in actions:
@@ -109,8 +108,8 @@ for i,j,m,k in states:
 
 
 
-epsilon = 0.005
-
+epsilon = 0.2
+'''
 def random_pick(some_list, probabilities):  
       x = random.uniform(0, 1)  
       cumulative_probability = 0.0  
@@ -118,7 +117,7 @@ def random_pick(some_list, probabilities):
             cumulative_probability += item_probability  
             if x < cumulative_probability: break  
       return item
-
+'''
 #some_list = [(1,1),(2,2)]
 #prob = [0.6,0.4]
 #print random_pick(some_list,prob)
@@ -139,7 +138,7 @@ def avg_return_per_episode(ep):
 	ep_return = 0.0
 	for i in range(2,ep_length,3):
 		ep_return += ep[i]
-	return ep_return*1.0 / ep_length		
+	return ep_return*1.0		
 
 def episode_generator():
 	
@@ -161,9 +160,13 @@ def episode_generator():
 		last_pos = end_pos
 
 		action_list = actions
-		action_prob = [item[2] for item in policies[c_state]]
-			
-		c_action = random_pick(action_list,action_prob)
+		
+		action_prob = polices[c_state].transpose()
+		
+		print("action_list: ",action_list)
+                print("action_prob: ",action_prob)	
+		
+		c_action = actions[np.random.choice(len(action_list),1,p=action_prob)[0]]
 		
 		# gurantee that velocity less than 5, more or equal 0
 		c_velocity = (max(min(c_state[2]+c_action[0],4),0),max(min(c_state[3]+c_action[1],4),0))
@@ -193,7 +196,7 @@ def episode_generator():
 		#print("action:",c_action)
 		#print("next_state:",c_state)
 		end_pos = (c_state[0],c_state[1])
-		print("end position:",end_pos)		
+		#print("end position:",end_pos)		
 	
 	print("episode generated!")
 	return episode
@@ -226,24 +229,27 @@ def cal_Q(episode):
 	print("calculate Q done!")	
 
 def update_policy(episode):
-	tmpList_sa = []
+	#tmpList_sa = []
 	checked_state = set()
 	e_length = len(episode)
 	for i in range(0,e_length,3):
 		s = episode[i]
+		tmpList_sa = []
 		if s not in checked_state:
+			checked_state.add(s)
 			for key in Q.keys():
 				if key[0] == s:
 					tmpList_sa.append((key[0],key[1],Q[key]))		
 			best_action = tmpList_sa[np.argmax([it[2] for it in tmpList_sa])][1]
-			# print best_action
-			for a in policies[s]:
-				if (a[0],a[1]) == best_action:
-					a[2] = 1 - epsilon + epsilon / len(policies[s])
+			print ("best_action: ",best_action)
+			for aix in range(len(actions)):
+				if actions[aix] == best_action:
+					policies[s][aix] = 1 - epsilon + epsilon / policies[s].shape[0]
 				else:
-					a[2] = epsilon / len(policies[s])
-	print("update done!")
+					policies[s][aix] = epsilon / policies[s].shape[0]
 		
+					
+	print("update done!") 
 
 class agent:
 	
@@ -319,7 +325,7 @@ f.close()
 plt.title("assessment of racetrack problem")
 plt.xlabel("episode index")
 plt.ylabel("episode average return")
-plt.plot(range(0,100),avg_ep_return_list,'r',label='avg return with on-policy')
+plt.plot(range(0,monte_carlo_num,50),[avg_ep_return_list[i] for i in range(0,monte_carlo_num,50),'r',label='avg return with on-policy')
 plt.grid()
 
 	
