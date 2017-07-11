@@ -94,7 +94,7 @@ policies = dict()
 for i,j,m,k in states:
 	policies[(i,j,m,k)] = np.random.random(len(actions))
 	policies[(i,j,m,k)] = policies[(i,j,m,k)] / np.sum(policies[(i,j,m,k)])
-print polices
+print policies
 	
 Q = dict()
 for i,j,m,k in states:
@@ -161,7 +161,7 @@ def episode_generator():
 
 		action_list = actions
 		
-		action_prob = polices[c_state].transpose()
+		action_prob = policies[c_state]
 		
 		print("action_list: ",action_list)
                 print("action_prob: ",action_prob)	
@@ -325,7 +325,7 @@ f.close()
 plt.title("assessment of racetrack problem")
 plt.xlabel("episode index")
 plt.ylabel("episode average return")
-plt.plot(range(0,monte_carlo_num,50),[avg_ep_return_list[i] for i in range(0,monte_carlo_num,50),'r',label='avg return with on-policy')
+plt.plot(range(0,monte_carlo_num,50),[avg_ep_return_list[i] for i in range(0,monte_carlo_num,50)],'r',label='avg return with on-policy')
 plt.grid()
 
 	
