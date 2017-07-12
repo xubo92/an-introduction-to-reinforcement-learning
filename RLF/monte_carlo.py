@@ -52,14 +52,19 @@ class MoneCarlo:
 					W = 1.0
 					G = 0
 					G += c_ep[j+2]
+					sa_idx = np.where(self.actions == c_ep[j+1])
 					for m in range(j+3,ep_length,3):
-						W *= 1.0 / mu[c_ep[m]][mu[c_ep[m]]==c_ep[m+1]]
+						W *= 1.0 / mu[c_ep[m]][np.where(self.actions == c_ep[m+1])]
 	  					G += c_ep[m+2]
-					self.N[c_ep[j]][self.N[c_ep[j]]==c_ep[j+1]] += W * G	
-					self.D[c_ep[j]][self.D[c_ep[j]]==c_ep[j+1]] += W
-					self.Q[c_ep[j]][self.Q[c_ep[j]]==c_ep[j+1]] = self.N[c_ep[j]][self.N[c_ep[j]]==c_ep[j+1]] / self.D[c_ep[j]][self.D[c_ep[j]]==c_ep[j+1]]	
+					self.N[c_ep[j]][sa_idx] += W * G	
+					self.D[c_ep[j]][sa_idx] += W
+					self.Q[c_ep[j]][sa_idx] = self.N[c_ep[j]][sa_idx] / self.D[c_ep[j]][sa_idx]	
 			
-			
+			for s in self.states:
+				best_action_idx = np.argmax(self.Q[s])
+				self.pi[s] = [0.0] * self.action_num
+				self.pi[s][best_action_idx] = 1.0
+
 	def on_policy():
 		self.pi = dict()
 		for s in self.states:
