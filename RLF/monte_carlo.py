@@ -36,13 +36,28 @@ class MoneCarlo:
 		while ep_idx < episode_num:
 			ep_idx += 1
 			c_ep = raceCar.episode_generator()
-			for i in range(len(c_ep)-3,-1,-3):
+			ep_length = len(c_ep)
+			latest_time = ep_length - 3
+			checked_sa = set()
+			for i in range(ep_length-3,-1,-3):
 				tmp_s = c_ep[i-1]
 				if c_ep[i] == pi[tmp_s][pi[tmp_s] == 1.0]:
 					continue
 				else:
 					latest_time = i
 					break
+			for j in range(latest_time+1,ep_length,3):
+				if c_ep[j] not in checked_sa:
+					checked_sa.add(c_ep[j])
+					W = 1.0
+					G = 0
+					G += c_ep[j+2]
+					for m in range(j+3,ep_length,3):
+						W *= 1.0 / mu[c_ep[m]][mu[c_ep[m]]==c_ep[m+1]]
+	  					G += c_ep[m+2]
+					self.N[c_ep[j]][self.N[c_ep[j]]==c_ep[j+1]] += W * G	
+					self.D[c_ep[j]][self.D[c_ep[j]]==c_ep[j+1]] += W
+					self.Q[c_ep[j]][self.Q[c_ep[j]]==c_ep[j+1]] = self.N[c_ep[j]][self.N[c_ep[j]]==c_ep[j+1]] / self.D[c_ep[j]][self.D[c_ep[j]]==c_ep[j+1]]	
 			
 			
 	def on_policy():
