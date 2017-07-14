@@ -1,7 +1,7 @@
 import os,sys
 import numpy as np
 import matplotlib.pyplot as plt
-from agent import raceCar
+from agent import *
 
 class MoneCarlo:
 
@@ -9,8 +9,8 @@ class MoneCarlo:
 		self.states = state_list
 		self.actions = action_list
 		
-		self.state_num = len(states)
-		self.action_num = len(actions)
+		self.state_num = len(self.states)
+		self.action_num = len(self.actions)
 
 		self.Q = dict() 
 		self.N = dict() 
@@ -20,18 +20,29 @@ class MoneCarlo:
 			self.Q[s] = np.random.random(self.action_num)
 			self.N[s] = np.zeros(self.action_num)
 			self.D[s] = np.zeros(self.action_num)
-			 
-	def off_policy(self,episode_num,epsilon):
+	
+	def set_policy(self,learning_type):
 		self.pi = dict()
 		self.mu = dict()
-		
-		for s in self.states:
-			idx = np.random.randint(0,self.action_num,size=1)[0]
-			self.pi[s] = np.zeros(self.action_num)
-			self.pi[s][idx] = 1.0
+	
+		if learning_type == 'off-policy':		
+			for s in self.states:
+				idx = np.random.randint(0,self.action_num,size=1)[0]
+				self.pi[s] = np.zeros(self.action_num)
+				self.pi[s][idx] = 1.0
+				
+				self.mu[s] = np.random.random(self.action_num)
+				
+		elif learning_type == 'on-policy':
+			pass
+		else:
+			pass
 			
-			self.mu[s] = np.random.random(self.action_num)
 		
+			
+			
+	def off_policy_learning(self,episode_num,epsilon):
+			
 		ep_idx = 0
 		while ep_idx < episode_num:
 			ep_idx += 1
@@ -65,9 +76,24 @@ class MoneCarlo:
 				self.pi[s] = [0.0] * self.action_num
 				self.pi[s][best_action_idx] = 1.0
 
-	def on_policy():
+	def on_policy_learning():
 		self.pi = dict()
 		for s in self.states:
 			self.pi[s] = np.random.random(self.action_num)
+
+
+
+ 
+Lamborghini = RaceCar()
+Lam_states  = Lamborghini.get_states()
+Lam_actions = Lamborghini.get_actions()
+
+MC = MoneCarlo(Lam_states,Lam_actions)
+MC.set_policy('off-policy') 
+
+ep = Lamborghini.episode_generator(MC.mu,200)
+print ep
+
+
 
 
