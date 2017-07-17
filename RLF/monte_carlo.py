@@ -32,32 +32,50 @@ class MoneCarlo:
 				self.pi[s][idx] = 1.0
 				
 				self.mu[s] = np.random.random(self.action_num)
-				
+				self.mu[s] = self.mu[s] / np.sum(self.mu[s])	
 		elif learning_type == 'on-policy':
 			pass
 		else:
 			pass
+
+	def get_policy(self,policy_type):
+		if policy_type == 'target policy':
+			return self.pi
+		elif policy_type == 'behavior policy':
+			return self.mu			
+		else:
+			print("Get policy with error")			
 			
-		
-			
-			
-	def off_policy_learning(self,episode_num,epsilon):
+	def off_policy_learning(self,agent,episode_num,epsilon,max_timestep,eval_interval):
 			
 		ep_idx = 0
+		avg_ep_return_list = []
 		while ep_idx < episode_num:
-			ep_idx += 1
-			c_ep = raceCar.episode_generator()
+			
+			
+			if ep_idx % eval_interval == 0:
+				eval_ep = agent.episode_generator(self.pi,max_timestep)
+				print("eval episode length:%d" %len(eval_ep))
+				c_avg_return = agent.avg_return_per_episode(eval_ep)
+				avg_ep_return_list.append(c_avg_return)
+				print("assessing return:%f" %c_avg_return)
+			
+			c_ep = agent.episode_generator(self.mu,max_timestep)
 			ep_length = len(c_ep)
+			
+			print("processing the %dth episode:" %ep_idx)
+			print("episode length:%d\n" %(ep_length/3))
 			latest_time = ep_length - 3
 			checked_sa = set()
 			for i in range(ep_length-3,-1,-3):
 				tmp_s = c_ep[i-1]
-				if c_ep[i] == pi[tmp_s][pi[tmp_s] == 1.0]:
+				if np.where(self.actions == c_ep[i]) == np.where(self.pi[tmp_s] == 1.0):
 					continue
 				else:
 					latest_time = i
+					print("latest_time:%d" %(i/3))
 					break
-			for j in range(latest_time+1,ep_length,3):
+			for j in range(latest_time+2,ep_length-3,3):
 				if c_ep[j] not in checked_sa:
 					checked_sa.add(c_ep[j])
 					W = 1.0
@@ -73,8 +91,12 @@ class MoneCarlo:
 			
 			for s in self.states:
 				best_action_idx = np.argmax(self.Q[s])
+				#print("best-action:",self.actions[best_action_idx]) 
 				self.pi[s] = [0.0] * self.action_num
 				self.pi[s][best_action_idx] = 1.0
+			
+			ep_idx += 1
+		return avg_ep_return_list
 
 	def on_policy_learning():
 		self.pi = dict()
@@ -83,7 +105,7 @@ class MoneCarlo:
 
 
 
- 
+''' 
 Lamborghini = RaceCar()
 Lam_states  = Lamborghini.get_states()
 Lam_actions = Lamborghini.get_actions()
@@ -93,7 +115,7 @@ MC.set_policy('off-policy')
 
 ep = Lamborghini.episode_generator(MC.mu,200)
 print ep
-
+'''
 
 
 

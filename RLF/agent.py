@@ -69,67 +69,81 @@ class RaceCar:
 		else:
 			return False
 		
-
-	def episode_generator(self,policy,max_num):
 	
-			start_velocity = (0,0)			
-			start_pos = self.start_line[np.random.randint(0,len(start_line)-1)]
-			end_pos = start_pos
-			last_pos = start_pos
+	def avg_return_per_episode(self,ep):
+		
+		ep_length = len(ep)
+		ep_return = 0.0
+		
+		for i in range(2,ep_length,3):
+			ep_return += ep[i]
+		return ep_return * 1.0
+		
+	def episode_generator(self,policy,max_num):
 
-			start_state = (start_pos[0],start_pos[1],start_velocity[0],start_velocity[1])	
-			c_state = start_state
-		
-			episode = []
-			episode.append(c_state)
-		
-			#print("start_state:",c_state)
-			n = 0
-		
-			while not self.pass_endLine(last_pos,end_pos) and n < max_num:
-				
-				last_pos = end_pos
+		start_velocity = (0,0)			
+		start_pos = self.start_line[np.random.randint(0,len(start_line)-1)]
+		end_pos = start_pos
+		last_pos = start_pos
 
-				action_list = self.get_actions()
-				
-				action_prob = policy[c_state]
-				
-				print("action_list: ",action_list)
-				print("action_prob: ",action_prob)	
-				
-				c_action = action_list[np.random.choice(len(action_list),1,p=action_prob)[0]]
-				
-				# gurantee that velocity less than 5, more or equal 0
-				c_velocity = (max(min(c_state[2]+c_action[0],4),0),max(min(c_state[3]+c_action[1],4),0))
-				if c_velocity[0] == 0 and c_velocity[1] == 0:
-					continue 
-				
-				# unsure state remaining to be justified
-				x_state = (c_state[0]-c_velocity[1],c_state[1]+c_velocity[0],c_velocity[0],c_velocity[1])
-				
-				
-				# if the car crash to wall, send it back at random start pos
-				if x_state[0] < 0 or x_state[0] > 13 or x_state[1] < 0 or x_state[1] > 19 or self.race_map[x_state[0],x_state[1]]==0: 
-					#print "stucking..."
-					#print "stuck action:",c_action
-					#print "stuck state:",x_state	
-					tmp_pos = self.start_line[np.random.randint(0,len(self.start_line)-1)]
-					c_state = (tmp_pos[0],tmp_pos[1],0,0)
-					c_reward = -5
-				else:
-					c_state = x_state
-					c_reward = -1
-				
-				episode.append(c_action)
-				episode.append(c_reward)
-				episode.append(c_state)
-				n += 1
-				#print("action:",c_action)
-				#print("next_state:",c_state)
-				end_pos = (c_state[0],c_state[1])
-				#print("end position:",end_pos)		
+		start_state = (start_pos[0],start_pos[1],start_velocity[0],start_velocity[1])	
+		c_state = start_state
+	
+		episode = []
+		episode.append(c_state)
+	
+		#print("start_state:",c_state)
+		n = 0
+	
+		while not self.pass_endLine(last_pos,end_pos) and n < max_num:
 			
-			print("episode generated!")
-			return episode
+			last_pos = end_pos
 
+			action_list = self.get_actions()
+			
+			action_prob = policy[c_state]
+			
+			#print("action_list: ",action_list)
+			#print("action_prob: ",action_prob)	
+			
+			c_action = action_list[np.random.choice(len(action_list),1,p=action_prob)[0]]
+			
+			# gurantee that velocity less than 5, more or equal 0
+			c_velocity = (max(min(c_state[2]+c_action[0],4),0),max(min(c_state[3]+c_action[1],4),0))
+				
+				
+			
+			# unsure state remaining to be justified
+			x_state = (c_state[0]-c_velocity[1],c_state[1]+c_velocity[0],c_velocity[0],c_velocity[1])
+			
+			
+			# if the car crash to wall, send it back at random start pos
+			if x_state[0] < 0 or x_state[0] > 13 or x_state[1] < 0 or x_state[1] > 19 or self.race_map[x_state[0],x_state[1]]==0: 
+				#print "stucking..."
+				#print "stuck action:",c_action
+				#print "stuck state:",x_state	
+				tmp_pos = self.start_line[np.random.randint(0,len(self.start_line)-1)]
+				c_state = (tmp_pos[0],tmp_pos[1],0,0)
+				c_reward = -5
+				
+			elif x_state[2] == 0 and x_state[3] == 0:
+				c_state = x_state
+				c_reward = -8
+				
+			else:
+				c_state = x_state
+				c_reward = -1
+			
+			episode.append(c_action)
+			episode.append(c_reward)
+			episode.append(c_state)
+			n += 1
+			#print("action:",c_action)
+			#print("next_state:",c_state)
+			end_pos = (c_state[0],c_state[1])
+			#print("end position:",end_pos)		
+		
+		print("episode generated!")
+		return episode
+	
 		
