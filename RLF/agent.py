@@ -110,7 +110,8 @@ class RaceCar:
 			
 			# gurantee that velocity less than 5, more or equal 0
 			c_velocity = (max(min(c_state[2]+c_action[0],4),0),max(min(c_state[3]+c_action[1],4),0))
-				
+			if c_velocity[0] == 0 and c_velocity[1] == 0:
+				continue				
 				
 			
 			# unsure state remaining to be justified
@@ -125,15 +126,19 @@ class RaceCar:
 				tmp_pos = self.start_line[np.random.randint(0,len(self.start_line)-1)]
 				c_state = (tmp_pos[0],tmp_pos[1],0,0)
 				c_reward = -5
-				
-			elif x_state[2] == 0 and x_state[3] == 0:
-				c_state = x_state
-				c_reward = -8
-				
 			else:
 				c_state = x_state
 				c_reward = -1
+			'''	
+			elif x_state[2] == 0 and x_state[3] == 0:
+				c_state = x_state
+				c_reward = -8
 			
+	
+			else:
+				c_state = x_state
+				c_reward = -1
+			'''
 			episode.append(c_action)
 			episode.append(c_reward)
 			episode.append(c_state)

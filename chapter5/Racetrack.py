@@ -94,7 +94,7 @@ policies = dict()
 for i,j,m,k in states:
 	policies[(i,j,m,k)] = np.random.random(len(actions))
 	policies[(i,j,m,k)] = policies[(i,j,m,k)] / np.sum(policies[(i,j,m,k)])
-print policies
+#print policies
 	
 Q = dict()
 for i,j,m,k in states:
@@ -163,8 +163,8 @@ def episode_generator():
 		
 		action_prob = policies[c_state]
 		
-		print("action_list: ",action_list)
-                print("action_prob: ",action_prob)	
+		#print("action_list: ",action_list)
+                #print("action_prob: ",action_prob)	
 		
 		c_action = actions[np.random.choice(len(action_list),1,p=action_prob)[0]]
 		
@@ -241,7 +241,7 @@ def update_policy(episode):
 				if key[0] == s:
 					tmpList_sa.append((key[0],key[1],Q[key]))		
 			best_action = tmpList_sa[np.argmax([it[2] for it in tmpList_sa])][1]
-			print ("best_action: ",best_action)
+			#print ("best_action: ",best_action)
 			for aix in range(len(actions)):
 				if actions[aix] == best_action:
 					policies[s][aix] = 1 - epsilon + epsilon / policies[s].shape[0]
@@ -304,10 +304,10 @@ def frame_update(step_info):
 	return im,annotation
 
 
-monte_carlo_num = 100
+monte_carlo_num = 500
 ep_list = []
 avg_ep_return_list = []
-f = open("tmp_data.txt",'w')
+#f = open("tmp_data.txt",'w')
 for i in range(monte_carlo_num):
 	ep = episode_generator()
 	print("episode length:%d" %(len(ep)/3))
@@ -315,12 +315,12 @@ for i in range(monte_carlo_num):
 	cal_Q(ep)
 	
 	update_policy(ep)
-	ep_list.append(ep)
-	arpe = avg_return_per_episode(ep)
-	avg_ep_return_list.append(arpe)
-	f.write(('episode%d'%i) + 'return:' + str(arpe))
-	f.write('\n')
-f.close()
+	#ep_list.append(ep)
+	#arpe = avg_return_per_episode(ep)
+	#avg_ep_return_list.append(arpe)
+	#f.write(('episode%d'%i) + 'return:' + str(arpe))
+	#f.write('\n')
+#f.close()
 
 plt.title("assessment of racetrack problem")
 plt.xlabel("episode index")
