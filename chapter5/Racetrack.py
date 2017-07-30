@@ -2,23 +2,25 @@ import sys,os
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+
+import time
 import matplotlib.animation as animation
 #%matplotlib inline
 
 race_map = np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-		     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-		     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-		     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0],
-		     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0],
-		     [0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,3,0,0,0],
-	             [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0],
-	             [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0],
+		     		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		     		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		     		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0],
+		     		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0],
+		     		 [0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,3,0,0,0],
+	             	 [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0],
+	             	 [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0],
                      [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
-		     [0,0,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0],
-		     [0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0],
-		     [0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-		     [0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-		     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
+		     		 [0,0,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0],
+		     		 [0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0],
+		     		 [0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		     		 [0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		     		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
 '''
 race_map = np.array([
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -67,7 +69,7 @@ race_map = np.array([
 start_line = [(12,5),(12,4),(12,3),(12,2)]
 finish_line = [(5,16),(6,16),(7,16)]
 
-start_velocity = (0,0)
+start_velocity = (2,2)
 
 # states are the position of the car
 states = []
@@ -97,16 +99,22 @@ for i,j,m,k in states:
 #print policies
 	
 Q = dict()
+'''
 for i,j,m,k in states:
 	for ax,ay in actions:
 		Q[((i,j,m,k),(ax,ay))] = 0
+'''
+for i,j,m,k in states:
+	Q[(i,j,m,k)] = np.zeros(actions_num)
 
 Returns = dict()
+'''
 for i,j,m,k in states:
 	for ax,ay in actions:
 		Returns[((i,j,m,k),(ax,ay))] = list()
-
-
+'''
+for i,j,m,k in states:
+	Returns[(i,j,m,k)] = [[] for _ in xrange(actions_num)]
 
 epsilon = 0.2
 '''
@@ -140,7 +148,7 @@ def avg_return_per_episode(ep):
 		ep_return += ep[i]
 	return ep_return*1.0		
 
-def episode_generator():
+def episode_generator(is_greedy):
 	
 	start_pos = start_line[random.randint(0,len(start_line)-1)]
 	end_pos = start_pos
@@ -160,19 +168,31 @@ def episode_generator():
 		last_pos = end_pos
 
 		action_list = actions
-		
+		print "all actions:",actions
+
 		action_prob = policies[c_state]
-		
-		#print("action_list: ",action_list)
-                #print("action_prob: ",action_prob)	
-		
-		c_action = actions[np.random.choice(len(action_list),1,p=action_prob)[0]]
-		
+		print "action_prob:",action_prob
+
+		#print "action list:", action_list
+		#print "action_prob:", action_prob
+
+		if not is_greedy:
+			c_action = actions[np.random.choice(len(action_list),1,p=action_prob)[0]]
+			print "c_action_idx:",np.where((np.array(actions)==c_action).all(1))[0]
+
+
+		else:
+			c_action = actions[np.argmax(action_prob)]
+
 		# gurantee that velocity less than 5, more or equal 0
 		c_velocity = (max(min(c_state[2]+c_action[0],4),0),max(min(c_state[3]+c_action[1],4),0))
-		if c_velocity[0] == 0 and c_velocity[1] == 0:
-			continue 
-		
+
+		#if c_velocity[0] == 0 and c_velocity[1] == 0:
+		#	continue
+
+		print "c_action:",c_action
+		# print "c_velocity:",c_velocity
+
 		# unsure state remaining to be justified
 		x_state = (c_state[0]-c_velocity[1],c_state[1]+c_velocity[0],c_velocity[0],c_velocity[1])
 		
@@ -183,8 +203,19 @@ def episode_generator():
 			#print "stuck action:",c_action
 			#print "stuck state:",x_state	
 			tmp_pos = start_line[random.randint(0,len(start_line)-1)]
-			c_state = (tmp_pos[0],tmp_pos[1],0,0)
+			c_state = (tmp_pos[0],tmp_pos[1],2,2)
 			c_reward = -5
+
+		elif c_velocity[0] == 0 and c_velocity[1] == 0:
+
+			if np.random.choice(2,1,p=[0.5,0.5])[0] == 0:
+				c_state = (x_state[0],x_state[1],1,x_state[3])
+
+			else:
+				c_state = (x_state[0],x_state[1],x_state[2],1)
+
+			c_reward = -5
+
 		else:
 			c_state = x_state
 			c_reward = -1
@@ -220,12 +251,16 @@ def cal_Q(episode):
 	else:
 		# e_length-1 is for the omitting of terminal state, avoid the out of bound when episode[i+1]
 		for i in range(0,e_length-1,3):
-			sa_pair = (episode[i],episode[i+1])
+			#sa_pair = (episode[i],episode[i+1])
+			sa_pair = (episode[i],np.where((np.array(actions)==episode[i+1]).all(1))[0][0])
+			print "sa_pair:",sa_pair
+
 			if sa_pair not in checked_pair:
-				Returns[sa_pair].append(calReturnOfOnePair(i+2,e_length,episode)) 
+				#Returns[sa_pair].append(calReturnOfOnePair(i+2,e_length,episode))
+				Returns[sa_pair[0]][sa_pair[1]].append(calReturnOfOnePair(i+2,e_length,episode))
 				checked_pair.add(sa_pair)
-				Q[sa_pair] = sum(Returns[sa_pair]) * 1.0 / len(Returns[sa_pair])					
-	
+				#Q[sa_pair] = sum(Returns[sa_pair]) * 1.0 / len(Returns[sa_pair])
+				Q[sa_pair[0]][sa_pair[1]] = sum(Returns[sa_pair[0]][sa_pair[1]]) * 1.0 / len(Returns[sa_pair[0]][sa_pair[1]])
 	print("calculate Q done!")	
 
 def update_policy(episode):
@@ -234,14 +269,23 @@ def update_policy(episode):
 	e_length = len(episode)
 	for i in range(0,e_length,3):
 		s = episode[i]
-		tmpList_sa = []
+		#tmpList_sa = []
 		if s not in checked_state:
 			checked_state.add(s)
+
+			'''
 			for key in Q.keys():
 				if key[0] == s:
 					tmpList_sa.append((key[0],key[1],Q[key]))		
 			best_action = tmpList_sa[np.argmax([it[2] for it in tmpList_sa])][1]
 			#print ("best_action: ",best_action)
+			'''
+			print "state:",s
+			print "Q[s]:",Q[s]
+
+			best_action = actions[np.random.choice(np.where(Q[s] == np.amax(Q[s]))[0])]
+			print "best action:",best_action
+
 			for aix in range(len(actions)):
 				if actions[aix] == best_action:
 					policies[s][aix] = 1 - epsilon + epsilon / policies[s].shape[0]
@@ -288,7 +332,7 @@ dict(boxstyle="round4,pad=0.3", fc="white", ec="b", lw=2))
 
 #plt.show()
 '''
-
+'''
 def param_update():
 	for eth,ep in enumerate(ep_list):
 		for sth in range(0,len(ep),3):
@@ -302,25 +346,44 @@ def frame_update(step_info):
 	im.set_array(np.flipud(race_map_copy))
 	annotation.set_text(anno_text % (eth,sth,x_v,y_v))
 	return im,annotation
+'''
 
-
-monte_carlo_num = 500
+monte_carlo_num = 3500
 ep_list = []
 avg_ep_return_list = []
 #f = open("tmp_data.txt",'w')
 for i in range(monte_carlo_num):
-	ep = episode_generator()
+	start_time = time.time()
+
+	ep = episode_generator(False)
+
+	time1 = time.time()
 	print("episode length:%d" %(len(ep)/3))
 	print("processing %d episode:" %i)
 	cal_Q(ep)
+
+	time2 = time.time()
 	
 	update_policy(ep)
+
+	time3 = time.time()
+
+	#ep = episode_generator(True)
+	arpe = avg_return_per_episode(ep)
+	avg_ep_return_list.append(arpe)
+
+
+	#print("ep generator time:{:.2f}s".format(time1-start_time))
+	#print("Q cal time:{:.2f}s".format(time2-time1))
+	#print("policy update time:{:.2f}s".format(time3-time2))
 	#ep_list.append(ep)
 	#arpe = avg_return_per_episode(ep)
 	#avg_ep_return_list.append(arpe)
 	#f.write(('episode%d'%i) + 'return:' + str(arpe))
 	#f.write('\n')
 #f.close()
+
+
 
 plt.title("assessment of racetrack problem")
 plt.xlabel("episode index")

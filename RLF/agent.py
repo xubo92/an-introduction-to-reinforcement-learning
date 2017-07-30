@@ -64,7 +64,7 @@ class RaceCar:
 
 		if pre_pos[1] < endLine_y and lat_pos[1] >= endLine_y and (pre_pos[0] + lat_pos[0])/2 \
                 <= endLine_hx and (pre_pos[0] + lat_pos[0])/2 >= endLine_lx:
-                	return True
+			return True
 	
 		else:
 			return False
@@ -79,7 +79,7 @@ class RaceCar:
 			ep_return += ep[i]
 		return ep_return * 1.0
 		
-	def episode_generator(self,policy,max_num):
+	def episode_generator(self,policy,max_num,is_greedy):
 
 		start_velocity = (0,0)			
 		start_pos = self.start_line[np.random.randint(0,len(start_line)-1)]
@@ -105,13 +105,17 @@ class RaceCar:
 			
 			#print("action_list: ",action_list)
 			#print("action_prob: ",action_prob)	
-			
-			c_action = action_list[np.random.choice(len(action_list),1,p=action_prob)[0]]
-			
+
+			if not is_greedy:
+				c_action = action_list[np.random.choice(len(action_list),1,p=action_prob)[0]]
+			else:
+				c_action = action_list[np.argmax(action_prob)]
+
 			# gurantee that velocity less than 5, more or equal 0
 			c_velocity = (max(min(c_state[2]+c_action[0],4),0),max(min(c_state[3]+c_action[1],4),0))
-			if c_velocity[0] == 0 and c_velocity[1] == 0:
-				continue				
+
+			#if c_velocity[0] == 0 and c_velocity[1] == 0:
+			#	continue
 				
 			
 			# unsure state remaining to be justified
@@ -125,6 +129,15 @@ class RaceCar:
 				#print "stuck state:",x_state	
 				tmp_pos = self.start_line[np.random.randint(0,len(self.start_line)-1)]
 				c_state = (tmp_pos[0],tmp_pos[1],0,0)
+				c_reward = -5
+			elif c_velocity[0] == 0 and c_velocity[1] == 0:
+
+				if np.random.choice(2, 1, p=[0.5, 0.5])[0] == 0:
+					c_state = (x_state[0], x_state[1], 1, x_state[3])
+
+				else:
+					c_state = (x_state[0], x_state[1], x_state[2], 1)
+
 				c_reward = -5
 			else:
 				c_state = x_state

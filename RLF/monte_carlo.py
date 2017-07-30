@@ -2,6 +2,7 @@ import os,sys
 import numpy as np
 import matplotlib.pyplot as plt
 from agent import *
+import time
 
 class MonteCarlo:
 
@@ -18,7 +19,8 @@ class MonteCarlo:
 		self.D = dict()
 		
 		for s in self.states:
-			self.Q[s] = np.random.random(self.action_num)
+			#self.Q[s] = np.random.random(self.action_num)
+			self.Q[s] = np.zeros(self.action_num)
 			self.N[s] = np.zeros(self.action_num)
 			self.D[s] = np.zeros(self.action_num)
 		
@@ -111,15 +113,21 @@ class MonteCarlo:
 		avg_ep_return_list = []
 		
 		while ep_idx < episode_num:
-			'''
+
 			if ep_idx % eval_interval == 0:
-				eval_ep = agent.episode_generator(self.pi,max_timestep)
+				eval_ep = agent.episode_generator(self.pi,max_timestep,True)
 				print("eval episode length:%d" %(len(eval_ep)/3))
 				c_avg_return = agent.avg_return_per_episode(eval_ep)
 				avg_ep_return_list.append(c_avg_return)
 				print("assessing return:%f" %c_avg_return)
-			'''
-			c_ep = agent.episode_generator(self.pi,max_timestep) 
+				print "avg return list length:",len(avg_ep_return_list)
+
+			start_time = time.time()
+			c_ep = agent.episode_generator(self.pi,max_timestep,False)
+
+
+
+			time1 = time.time()
 			ep_length = len(c_ep)
 
 			if not ep_length:
@@ -130,7 +138,7 @@ class MonteCarlo:
 				
 				checked_pair = set()
 				for i in range(0,ep_length-1,3):
-					sa_pair = (c_ep[i],np.where(np.array(self.actions) == c_ep[i+1])[0][0])
+					sa_pair = (c_ep[i],np.where((np.array(self.actions)==c_ep[i+1]).all(1))[0][0])
 					if sa_pair not in checked_pair:
 						r = 0
 						r = r + c_ep[i+2]
@@ -140,15 +148,16 @@ class MonteCarlo:
 						checked_pair.add(sa_pair)
 						self.Q[sa_pair[0]][sa_pair[1]] = sum(self.returns[sa_pair[0]][sa_pair[1]]) * 1.0 / len(self.returns[sa_pair[0]][sa_pair[1]])
 				print("Q have been calculated!")
-				
+
+				time2 = time.time()
 				checked_states = set()
 				for i in range(0,ep_length,3):
 					s = c_ep[i]
- 					tmpList_sa = []
-                 			if s not in checked_states:
-                         			checked_states.add(s)
+					tmpList_sa = []
+					if s not in checked_states:
+						checked_states.add(s)
 					
-						best_action = self.actions[np.argmax(self.Q[s])]	
+						best_action = self.actions[np.random.choice(np.where(self.Q[s] == np.amax(self.Q[s]))[0])]
 						print ("best_action: ",best_action)
 
 						for aix in range(self.action_num):
@@ -156,8 +165,13 @@ class MonteCarlo:
 								self.pi[s][aix] = 1 - epsilon + epsilon / self.pi[s].shape[0]
 							else:
 								self.pi[s][aix] = epsilon / self.pi[s].shape[0]
-				print("policy updated done!")											
+				print("policy updated done!")
+				time3 = time.time()
 				ep_idx += 1
+
+				print("ep generator time:{:.2f}s".format(time1 - start_time))
+				print("Q cal time:{:.2f}s".format(time2 - time1))
+				print("policy update time:{:.2f}s".format(time3 - time2))
 		return avg_ep_return_list
 		
 

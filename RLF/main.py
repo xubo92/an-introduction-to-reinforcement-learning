@@ -15,14 +15,15 @@ if __name__ == '__main__':
 	Lam_actions = Lamborghini.get_actions()
 
 	MC = MonteCarlo(Lam_states,Lam_actions)
-	MC.set_policy('on-policy') 
+	learning_type = 'on-policy'
+	MC.set_policy(learning_type)
 		
-	avg_ep_return_list = MC.on_policy_learning(Lamborghini,500,0.2,200,50)
+	avg_ep_return_list = MC.on_policy_learning(Lamborghini,4000,0.2,200,50)
 		
-	xdata = range(0,500,50)
+	xdata = range(0,4000,50)
 	ydata = avg_ep_return_list
 
-	fig = Line_Chart(xdata,ydata,"index","avg return","assessment of racetrack off policy problem")
+	fig = Line_Chart(xdata,ydata,"index","avg return","assessment of racetrack "+learning_type)
 	fig.Draw_LineChart("")
 
 
