@@ -46,13 +46,12 @@ class MonteCarlo:
 		else:
 			pass
 
-	def get_policy(self,policy_type):
-		if policy_type == 'target policy':
+	def get_policy(self,learning_type):
+		if learning_type == 'off-policy':
+			return {'target policy':self.pi,'behavior policy':self.mu}
+
+		elif learning_type == 'on-policy':
 			return self.pi
-		elif policy_type == 'behavior policy':
-			return self.mu			
-		else:
-			print("Get policy with error")			
 			
 	def off_policy_learning(self,agent,episode_num,epsilon,max_timestep,eval_interval):
 			
@@ -92,8 +91,8 @@ class MonteCarlo:
 					G += c_ep[j+2]
 					sa_idx = np.where(self.actions == c_ep[j+1])
 					for m in range(j+3,ep_length,3):
-						W *= 1.0 / mu[c_ep[m]][np.where(self.actions == c_ep[m+1])]
-	  					G += c_ep[m+2]
+						W *= 1.0 / self.mu[c_ep[m]][np.where(self.actions == c_ep[m+1])]
+						G += c_ep[m+2]
 					self.N[c_ep[j]][sa_idx] += W * G	
 					self.D[c_ep[j]][sa_idx] += W
 					self.Q[c_ep[j]][sa_idx] = self.N[c_ep[j]][sa_idx] / self.D[c_ep[j]][sa_idx]	
