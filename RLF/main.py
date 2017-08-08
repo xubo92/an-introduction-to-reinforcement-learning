@@ -24,15 +24,15 @@ if __name__ == '__main__':
 	'''
 	TD = TemporalDifference(Lam_states,Lam_actions)
 	TD.set_policy('sarsa')
-	avg_ep_return_list = TD.sarsa_learning(Lamborghini,5000,0.1,0.5,1,200,50)
-	xdata = range(0,5000,50)
+	avg_ep_return_list = TD.sarsa_learning(Lamborghini,3000,0.1,0.5,1,200,50)
+	xdata = range(0,3000,50)
 	ydata = avg_ep_return_list
 	'''
 
 	TD = TemporalDifference(Lam_states, Lam_actions)
 	TD.set_policy('q-learning')
-	avg_ep_return_list = TD.Q_learning(Lamborghini, 3000, 0.1, 0.5, 1, 200, 50)
-	xdata = range(0, 3000, 50)
+	avg_ep_return_list = TD.Q_learning(Lamborghini, 10000, 0.1, 0.5, 1, 200, 100)
+	xdata = range(0, 10000, 100)
 	ydata = avg_ep_return_list
 
 	fig = Line_Chart(xdata,ydata,"index","avg return","assessment of racetrack "+'Q-learning')

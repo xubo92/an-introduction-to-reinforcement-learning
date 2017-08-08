@@ -14,8 +14,8 @@ class TemporalDifference:
 
 		self.Q = dict()
 		for s in self.states:
-			self.Q[s] = np.random.random(self.action_num)
-
+			#self.Q[s] = np.random.random(self.action_num)
+			self.Q[s] = np.zeros(self.action_num)
 		
 
 	def set_policy(self,learning_type):
@@ -30,12 +30,12 @@ class TemporalDifference:
 
 		elif learning_type == 'q-learning':
 			for s in self.states:
-				#idx = np.random.randint(0,self.action_num,size=1)[0]
-				#self.mu[s] = np.zeros(self.action_num)
-				#self.mu[s][idx] = 1.0
+				idx = np.random.randint(0,self.action_num,size=1)[0]
+				self.pi[s] = np.zeros(self.action_num)
+				self.pi[s][idx] = 1.0
 
-				self.pi[s] = np.random.random(self.action_num)
-				self.pi[s] = self.pi[s] / np.sum(self.pi[s])
+				self.mu[s] = np.random.random(self.action_num)
+				self.mu[s] = self.mu[s] / np.sum(self.mu[s])
 
 
 	def sarsa_learning(self,agent,episode_num,epsilon,alpha,gamma,max_timestep,eval_interval):
@@ -63,13 +63,14 @@ class TemporalDifference:
 			c_action_idx = np.random.choice(self.action_num, 1, p=self.pi[agent.c_state])[0]
 			agent.c_action = self.actions[c_action_idx]
 
-			print "episode index:",ep_idx
-			print "agent termination:",agent.isTerminated(n,max_timestep)
+			#print "episode index:",ep_idx
+			#print "agent termination:",agent.isTerminated()
 
-			while not agent.isTerminated(n,max_timestep):
+			while not (agent.isTerminated() or n >= max_timestep) :
 
 				agent.c_state = agent.next_state
 				agent.c_action = self.actions[c_action_idx]
+				#print "policy:",self.pi
 
 				agent.c_state,agent.c_action,agent.c_reward,agent.next_state = agent.oneStep_generator()
 
@@ -89,7 +90,7 @@ class TemporalDifference:
 				c_action_idx = next_action_idx
 
 				n += 1
-				print "n:",n
+				#print "n:",n
 
 		return avg_ep_return_list
 
@@ -114,37 +115,47 @@ class TemporalDifference:
 
 			n = 0
 
-			while not agent.isTerminated(n,max_timestep):
+			while n < max_timestep and not agent.isTerminated():
 
 				agent.c_state  = agent.next_state
 
-				c_action_idx = np.random.choice(self.action_num,1,p=self.pi[agent.c_state])
+				c_action_idx = np.random.choice(self.action_num,1,p=self.mu[agent.c_state])[0]
+				agent.c_action = self.actions[c_action_idx]
 
-				#print "c_action_idx:",c_action_idx
 
 				agent.c_state, agent.c_action, agent.c_reward, agent.next_state = agent.oneStep_generator()
 
-				#tmp_v = np.where(self.Q[agent.next_state]==np.amax(self.Q[agent.next_state]))[0]
-				#next_best_action_idx = np.random.choice(tmp_v)
-				#print "tmp_v:",tmp_v
+				#print "c_state:",agent.c_state
+				#print "c_action:",agent.c_action
+				#print "c_reward:",agent.c_reward
+				#print "next_state:",agent.next_state
+				#print "c_state mu:",self.mu[agent.c_state]
 
-				#print "next_best_action_idx:",next_best_action_idx
 
-				#self.Q[agent.c_state][c_action_idx] += alpha * (
-				#agent.c_reward + gamma * self.Q[agent.next_state][next_best_action_idx] - self.Q[agent.c_state][c_action_idx])
 
 				self.Q[agent.c_state][c_action_idx] += alpha * (
-				agent.c_reward + gamma * np.amax(self.Q[agent.next_state])- self.Q[agent.c_state][c_action_idx])
+				agent.c_reward + gamma * np.amax(self.Q[agent.next_state]) - self.Q[agent.c_state][c_action_idx])
+
+
 
 				c_best_action_idx = np.argmax(self.Q[agent.c_state])
+
+				#print "c_state Q:",self.Q[agent.c_state]
+				#print "c_best_action_idx:",c_best_action_idx
+
+				for action_idx in range(self.action_num):
+					if action_idx == c_best_action_idx:
+						self.mu[agent.c_state][action_idx] = 1 - epsilon + epsilon/self.action_num
+					else:
+						self.mu[agent.c_state][action_idx] = epsilon/self.action_num
+
 
 				# --------policy update at same time---------#
 				for action_idx in range(self.action_num):
 					if action_idx == c_best_action_idx:
-						self.pi[agent.c_state][action_idx] = 1 - epsilon + epsilon / self.action_num
-
+						self.pi[agent.c_state][action_idx] = 1.0
 					else:
-						self.pi[agent.c_state][action_idx] = epsilon / self.action_num
+						self.pi[agent.c_state][action_idx] = 0.0
 
 				n += 1
 

@@ -102,7 +102,7 @@ class RaceCar:
 		#print("start_state:",c_state)
 		n = 0
 
-		while not self.isTerminated(n,max_num):
+		while not self.isTerminated() and n < max_num:
 
 
 			self.c_state = self.next_state
@@ -112,7 +112,7 @@ class RaceCar:
 			action_prob = policy[self.c_state]
 			
 			#print("action_list: ",action_list)
-			#print("action_prob: ",action_prob)	
+			print("action_prob: ",action_prob)
 
 			if not is_greedy:
 				self.c_action = action_list[np.random.choice(len(action_list),1,p=action_prob)[0]]
@@ -142,8 +142,6 @@ class RaceCar:
 	def oneStep_generator(self):
 
 		# return [s,a,r,s']
-
-
 
 		self.next_state = (0, 0, 0, 0)
 		self.c_reward = 0
@@ -183,6 +181,7 @@ class RaceCar:
 		start_pos = self.start_line[np.random.randint(0, len(start_line) - 1)]
 		return (start_pos[0],start_pos[1],self.start_velocity[0],self.start_velocity[1])
 
+	'''
 	def isTerminated(self,n,max_timestep):
 
 
@@ -191,4 +190,11 @@ class RaceCar:
 		lat_pos = (self.next_state[0],self.next_state[1])
 
 		return self.pass_endLine(pre_pos,lat_pos) or n > max_timestep
+	'''
 
+	def isTerminated(self):
+
+		if (self.next_state[0],self.next_state[1]) in self.end_line:
+			return True
+		else:
+			return False
