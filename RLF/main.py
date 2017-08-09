@@ -36,16 +36,23 @@ if __name__ == '__main__':
 	xdata = range(0, 10000, 100)
 	ydata = avg_ep_return_list
 	'''
-
+	'''
 	td_lambda = Temporal_Difference_lambda(Lam_states,Lam_actions)
 	td_lambda.set_policy('sarsa_lambda')
-	avg_ep_return_list = td_lambda.sarsa_lambda(Lamborghini,5000,0.1,0.5,1,0.9,200,50)
+	avg_ep_return_list = td_lambda.sarsa_lambda(Lamborghini,2000,0.1,0.5,1,0.9,200,50)
 
-	xdata = range(0,5000,50)
+	xdata = range(0,2000,50)
+	ydata = avg_ep_return_list
+	'''
+
+	td_lambda = Temporal_Difference_lambda(Lam_states,Lam_actions)
+	td_lambda.set_policy('naive_Q_lambda')
+	avg_ep_return_list = td_lambda.sarsa_lambda(Lamborghini, 2000, 0.1, 0.5, 1, 0.9, 200, 50)
+
+	xdata = range(0, 2000, 50)
 	ydata = avg_ep_return_list
 
-
-	fig = Line_Chart(xdata,ydata,"index","avg return","assessment of racetrack "+'Q-learning')
+	fig = Line_Chart(xdata,ydata,"index","avg return","assessment of racetrack "+'with naive Q-lambda')
 	fig.Draw_LineChart("")
 
 
