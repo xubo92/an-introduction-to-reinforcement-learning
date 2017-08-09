@@ -100,5 +100,6 @@ class Temporal_Difference_lambda:
         return avg_ep_return_list
 
     def test_git(self):
+        print "pull back..."
         pass
 
