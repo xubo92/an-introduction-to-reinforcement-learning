@@ -1,5 +1,7 @@
 import os,sys
 import numpy as np
+import gym
+
 
 class RaceCar:
 
@@ -198,3 +200,9 @@ class RaceCar:
 			return True
 		else:
 			return False
+
+class CartPole:
+	def __init__(self):
+		self.env = gym.make('CartPole-v0')
+	def get_env(self):
+		return self.env

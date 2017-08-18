@@ -1,11 +1,12 @@
 import os,sys
 import numpy as np
 import matplotlib.pyplot as plt
-from agent import *
+from env import *
 from result_analysis import *
 from monte_carlo import *
 from td import *
 from td_lambda import *
+from DQN import *
 
 
 if __name__ == '__main__':
@@ -44,7 +45,7 @@ if __name__ == '__main__':
 	xdata = range(0,2000,50)
 	ydata = avg_ep_return_list
 	'''
-
+	'''
 	td_lambda = Temporal_Difference_lambda(Lam_states,Lam_actions)
 	td_lambda.set_policy('naive_Q_lambda')
 	avg_ep_return_list = td_lambda.sarsa_lambda(Lamborghini, 2000, 0.1, 0.5, 1, 0.9, 200, 50)
@@ -54,6 +55,11 @@ if __name__ == '__main__':
 
 	fig = Line_Chart(xdata,ydata,"index","avg return","assessment of racetrack "+'with naive Q-lambda')
 	fig.Draw_LineChart("")
+	'''
 
+	CartPole = CartPole()
+	env = CartPole.get_env()
 
+	DQN = DQN(env)
+	DQN.Deep_Q_Learning(env,500,50000,32,0)
 

@@ -295,7 +295,7 @@ def update_policy(episode):
 					
 	print("update done!") 
 
-class agent:
+class env:
 	
 	cur_state = (9,5,0,0)
 	traces = race_map
@@ -405,7 +405,7 @@ for i in range(monte_carlo_num):
 	cal_Q(ep)
 	update_policy(ep)
 	
-ag1 = agent(policies)
+ag1 = env(policies)
 stop_flag = ag1.stop()
 while not stop_flag:
 	ag1.forward()

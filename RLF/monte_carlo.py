@@ -1,7 +1,7 @@
 import os,sys
 import numpy as np
 import matplotlib.pyplot as plt
-from agent import *
+from env import *
 import time
 
 class MonteCarlo:
@@ -53,7 +53,7 @@ class MonteCarlo:
 		elif learning_type == 'on-policy':
 			return self.pi
 			
-	def off_policy_learning(self,agent,episode_num,epsilon,max_timestep,eval_interval):
+	def off_policy_learning(self,env,episode_num,epsilon,max_timestep,eval_interval):
 			
 		ep_idx = 0
 		avg_ep_return_list = []
@@ -61,13 +61,13 @@ class MonteCarlo:
 			
 			
 			if ep_idx % eval_interval == 0:
-				eval_ep = agent.episode_generator(self.pi,max_timestep)
+				eval_ep = env.episode_generator(self.pi,max_timestep)
 				print("eval episode length:%d" %(len(eval_ep)/3))
-				c_avg_return = agent.avg_return_per_episode(eval_ep)
+				c_avg_return = env.avg_return_per_episode(eval_ep)
 				avg_ep_return_list.append(c_avg_return)
 				print("assessing return:%f" %c_avg_return)
 			
-			c_ep = agent.episode_generator(self.mu,max_timestep)
+			c_ep = env.episode_generator(self.mu,max_timestep)
 			ep_length = len(c_ep)
 			
 			print("processing the %dth episode:" %ep_idx)
@@ -106,7 +106,7 @@ class MonteCarlo:
 			ep_idx += 1
 		return avg_ep_return_list
 
-	def on_policy_learning(self,agent,episode_num,epsilon,max_timestep,eval_interval):
+	def on_policy_learning(self,env,episode_num,epsilon,max_timestep,eval_interval):
 		
 		ep_idx = 0
 		avg_ep_return_list = []
@@ -114,15 +114,15 @@ class MonteCarlo:
 		while ep_idx < episode_num:
 
 			if ep_idx % eval_interval == 0:
-				eval_ep = agent.episode_generator(self.pi,max_timestep,True)
+				eval_ep = env.episode_generator(self.pi,max_timestep,True)
 				print("eval episode length:%d" %(len(eval_ep)/3))
-				c_avg_return = agent.avg_return_per_episode(eval_ep)
+				c_avg_return = env.avg_return_per_episode(eval_ep)
 				avg_ep_return_list.append(c_avg_return)
 				print("assessing return:%f" %c_avg_return)
 				print "avg return list length:",len(avg_ep_return_list)
 
 			start_time = time.time()
-			c_ep = agent.episode_generator(self.pi,max_timestep,False)
+			c_ep = env.episode_generator(self.pi,max_timestep,False)
 
 
 
