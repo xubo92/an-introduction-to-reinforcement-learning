@@ -30,7 +30,7 @@ The algorithms after 9th chapter will be added continuously by another version o
 - **chapter6** : Temporal-Difference Learning  
 
   Includes td-related algorithms and experiment performances on **racetrack**.  
-  [td.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter6/td.py)  
+  1. [td.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter6/td.py)  
   
   **Note**: From this chapter, I quit implementing environment of every exercise. Since almost each exercise has a different environment. If I just used different algorithms on different environments, one can hardly has a comparison between those algorithms, Therefore, I decided to show the performances of different algorithms on single same environment: **racetrack**.  
   
@@ -38,11 +38,25 @@ The algorithms after 9th chapter will be added continuously by another version o
 - **chapter7** : Eligibility Traces
 
   Includes td-lambda related algorithms and experiment performances on **racetrack**  
-  [td_lambda.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter7/td_lambda.py)
+  1. [td_lambda.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter7/td_lambda.py)
 
 - **chapter8** : Planning and Learning with Tabular Methods
 
   Includes Dyna_Q algorithm.  
-  [Dyna_Q](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter8/Dyna_Q.py)  
-  
+  1. [Dyna_Q](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter8/Dyna_Q.py)  
+
+- **RLF** ： An reinforcement learning algorithms library which pulls together all algorithms mentioned above and *some new deep reinforment learning algorithms like DQN or DDPG* for purpose of convenient external call.  
+  **Note**: One remarkable point of this library is the seperation of *'environment'* and *'agent algorithm'* via the attribute of 'python Class'. In this way, you could add or modify your own environment without interfering agent part. Also, you can just connect agent algorithms(td,monte-carlo,dp,...) to your environment.  
+  + environment code:
+    - [env.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/env.py)
+  + agent algorithms:  
+    - [monte_carlo.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/monte_carlo.py)
+    - [dp.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/dp.py)
+    - [td.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/td.py)
+    - [td_lambda.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/td_lambda.py)
+    - [Dyna_Q.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/Dyna_Q.py)
+    - [DQN.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/DQN.py)
+  + main function:
+    - [main.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/main.py)
+    
 ### - How to utilize them for your projects?
