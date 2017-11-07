@@ -1,2 +1,7 @@
 # A-introduction-to-reinforcement
-store the programming exercises in this book organized by chapter
+
+## Instructions 
+
+- why do I maintain this repository?
+- what are in this repository?
+- How to utilize them for your projects?
