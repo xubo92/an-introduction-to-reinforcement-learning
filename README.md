@@ -16,24 +16,26 @@ The algorithms after 9th chapter will be added continuously by another version o
 
 - **chapter4** : Dynamic Programming  
 
-Includes two exercises:  
+&ensp;&ensp;Includes two exercises:  
   1. [The Gambler](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter4/The_Gambler.py) 
   2. [Jack's Car Rental](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter4/Jack%E2%80%99s_Car_Rental.py)  
   
 - **chapter5** : Monte Carlo Methods  
-
-Includes an exercise called "racetrack" and experiment performances on **racetrack**.  
+&ensp;&ensp;Includes an exercise called "racetrack" and experiment performances on **racetrack**.  
 **Note**:the Monte Carlo algorithms from chapter 5 are all implemented in the single file [Racetrack.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter5/Racetrack.py). Specifically in func: `def update_policy(episode):`  
 
-- **chapter6** : Temporal-Difference Learning
-Includes td-related algorithms and experiment performances on **racetrack**.  
+- **chapter6** : Temporal-Difference Learning  
+
+&ensp;&ensp;Includes td-related algorithms and experiment performances on **racetrack**.  
 **Note**: From this chapter, I quit implementing environment of every exercise. Since almost each exercise has a different environment. If I just used different algorithms on different environments, one can hardly has a comparison between those algorithms, Therefore, I decided to show the performances of different algorithms on single same environment:**racetrack**.  
 [td.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter6/td.py)
 
 - **chapter7** : Eligibility Traces
-Includes td-lambda related algorithms and experiment performances on **racetrack**
+
+&ensp;&ensp;Includes td-lambda related algorithms and experiment performances on **racetrack**
 [td_lambda.py](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/chapter7/td_lambda.py)
 
--**chapter8** : Planning and Learning with Tabular Methods
-Includes Dyna_Q algorithm.
+- **chapter8** : Planning and Learning with Tabular Methods
+
+&ensp;&ensp;Includes Dyna_Q algorithm.
 ### - How to utilize them for your projects?
