@@ -13,7 +13,7 @@ I believe the quote > 'talk is cheap, show me the code'.
 ### - what are in this repository?  
 This repository consists of the algorithms from first 9 chapters in this book: [Reinforcement Learning:An introduction --2012 version](https://files.cnblogs.com/files/lvlvlvlvlv/SuttonBook.pdf)  
 
-![SARSA-LAMBDA](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/SARSA_lambda_RACETRACK.png)
+![on-policy MC](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/MC_ON-POLICY_RACETRACK.png)
 
 The algorithms after 9th chapter will be added continuously by another version of this book.  
 
