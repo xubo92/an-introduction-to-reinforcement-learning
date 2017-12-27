@@ -1,4 +1,3 @@
-
 # A-introduction-to-reinforcement-learning
 
 ## Instructions 
@@ -37,7 +36,8 @@ The algorithms after 9th chapter will be added continuously by another version o
   
   **Note**: From this chapter, I quit implementing environment of every exercise. Since almost each exercise has a different environment. If I just used different algorithms on different environments, one can hardly has a comparison between those algorithms, Therefore, I decided to show the performances of different algorithms on single same environment: **racetrack**.  
   
-
+  ![naive-Q-lambda](https://github.com/lvlvlvlvlv/A-introduction-to-reinforcement-learning/blob/master/RLF/naive_Q_lambda_RACETRACK.png)  
+  
 - **chapter7** : Eligibility Traces
 
   Includes td-lambda related algorithms and experiment performances on **racetrack**  
